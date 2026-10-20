@@ -1,0 +1,32 @@
+{
+  "src/domain.rs": {
+    "mtime": 1792458457.5610473,
+    "seen": 1792458908.53426,
+    "ast_hash": "0eacc0bee993edbae3842c5f12fbf7c2",
+    "semantic_hash": "0eacc0bee993edbae3842c5f12fbf7c2"
+  },
+  "src/main.rs": {
+    "mtime": 1792457201.4147468,
+    "seen": 1792458908.53426,
+    "ast_hash": "e5d1ed7aead365f3d39b5af0f3ccdf89",
+    "semantic_hash": "e5d1ed7aead365f3d39b5af0f3ccdf89"
+  },
+  "web/app.js": {
+    "mtime": 1792458731.1268733,
+    "seen": 1792458908.53426,
+    "ast_hash": "5e351996225f6c431de179babea1dcb1",
+    "semantic_hash": "5e351996225f6c431de179babea1dcb1"
+  },
+  "docs/requisitos.pdf": {
+    "mtime": 1792453259.961669,
+    "seen": 1792454497.9613788,
+    "ast_hash": "f53b63f58b64248f7b68e6d896e9e7e9",
+    "semantic_hash": "f53b63f58b64248f7b68e6d896e9e7e9"
+  },
+  "src/mysql_repo.rs": {
+    "mtime": 1792458457.5710008,
+    "seen": 1792458908.53426,
+    "ast_hash": "eb525dbcc6367b6a2111b792a964c1a3",
+    "semantic_hash": "eb525dbcc6367b6a2111b792a964c1a3"
+  }
+}

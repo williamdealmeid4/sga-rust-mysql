@@ -1,0 +1,50 @@
+PASS: 49 real Rust -> MySQL integration checks
+PASS Anonymous denied
+PASS Invalid password denied
+PASS Real Argon2 login
+PASS Seed visible through MySQL
+PASS No password hashes in browser API
+PASS Secretary data filtered
+PASS Permission /grades/1
+PASS Permission /close
+PASS Permission /records/cursos
+PASS Permission /records/usuarios/1
+PASS Permission /records/matriculas/1
+PASS API -> MySQL: alunos.nome
+PASS API -> MySQL: alunos.nome
+PASS API -> MySQL: cursos.nome
+PASS API -> MySQL: cursos.carga_horaria_total
+PASS API -> MySQL: disciplinas.nome
+PASS API -> MySQL: disciplinas.nome
+PASS Prerequisite persisted atomically
+PASS API -> MySQL: professores.nome
+PASS API -> MySQL: professores.titulacao
+PASS API -> MySQL: turmas.vagas
+PASS API -> MySQL: turmas.vagas
+PASS API -> MySQL: matriculas.id_aluno
+PASS Duplicate enrollment denied
+PASS Out-of-range grade denied
+PASS Grade and exam through API
+PASS API -> MySQL: matriculas.media_final
+PASS Attendance overrides grade
+PASS API -> MySQL: matriculas.situacao
+PASS MySQL trigger audit persisted
+PASS Graded history preserved
+PASS Delete matriculas persisted
+PASS Delete alunos persisted
+PASS Delete cursos persisted
+PASS Delete professores persisted
+PASS Delete disciplinas persisted
+PASS Delete turmas persisted
+PASS API -> MySQL: usuarios.perfil
+PASS New Argon2 password preserves spaces
+PASS API -> MySQL: usuarios.nome
+PASS Role changes reflect in active session
+PASS Password change invalidates sessions
+PASS Delete usuarios persisted
+PASS Deleted user session invalidated
+PASS Pending semester cannot close
+PASS API -> MySQL: turmas.encerrada
+PASS Closed grades blocked
+PASS Inactive/prerequisite restrictions
+PASS Database session logout

@@ -1,0 +1,1 @@
+PASS: API Rust + MySQL isolado: criar cobranca; registrar pagamento; reler pagamento; proteger exclusao paga; criar/excluir pendente; restringir secretario.

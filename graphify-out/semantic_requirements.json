@@ -1,0 +1,557 @@
+{
+  "nodes": [
+    {
+      "id": "docs_requisitos_sga",
+      "label": "Sistema de Gestão Acadêmica",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1"
+    },
+    {
+      "id": "docs_requisitos_login",
+      "label": "Login com verificação de senha",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1"
+    },
+    {
+      "id": "docs_requisitos_usuario",
+      "label": "Usuário e perfil de acesso",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_secretario",
+      "label": "Perfil Secretário",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1"
+    },
+    {
+      "id": "docs_requisitos_coordenador",
+      "label": "Perfil Coordenador",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_aluno",
+      "label": "Aluno e situação acadêmica",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_curso",
+      "label": "Curso, carga horária e turno",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_disciplina",
+      "label": "Disciplina e período",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_pre_requisito",
+      "label": "Pré-requisito de disciplina",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_professor",
+      "label": "Professor e titulação",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_turma",
+      "label": "Turma, semestre, vagas e aulas",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_matricula",
+      "label": "Matrícula, notas e faltas",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_log_nota",
+      "label": "Auditoria de notas",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_cadastro_aluno",
+      "label": "Cadastro, edição e exclusão de alunos",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1"
+    },
+    {
+      "id": "docs_requisitos_lancamento_notas",
+      "label": "Lançamento e alteração de notas e faltas",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_boletim",
+      "label": "Boletim acadêmico",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_historico",
+      "label": "Histórico completo por semestre",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_lotacao",
+      "label": "Lotação e vagas restantes",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_desempenho",
+      "label": "Desempenho por turma",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_financeiro",
+      "label": "Faturamento por curso",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_encerramento",
+      "label": "Encerramento exclusivo do Coordenador",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 4"
+    },
+    {
+      "id": "docs_requisitos_rn01",
+      "label": "RN01: média parcial = (N1 + N2) / 2",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn02",
+      "label": "RN02: >= 7 aprova; >= 4 exige exame; < 4 reprova",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn03",
+      "label": "RN03: média com exame; aprovação >= 5",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn04",
+      "label": "RN04: frequência < 75% reprova",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn05",
+      "label": "RN05: limite de vagas",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn06",
+      "label": "RN06: aprovação nos pré-requisitos",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn07",
+      "label": "RN07: notas entre 0 e 10",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn08",
+      "label": "RN08: auditoria automática de notas",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_rn09",
+      "label": "RN09: Trancado e Formado sem nova matrícula",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    },
+    {
+      "id": "docs_requisitos_frequencia",
+      "label": "Frequência = (aulas - faltas) / aulas × 100",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_exame",
+      "label": "Exame somente na situação Em Exame",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3"
+    },
+    {
+      "id": "docs_requisitos_senha_hash",
+      "label": "Senhas armazenadas com hash",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1"
+    },
+    {
+      "id": "docs_requisitos_permissoes",
+      "label": "Permissões por perfil",
+      "file_type": "rationale",
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_requisitos_sga",
+      "target": "docs_requisitos_login",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_login",
+      "target": "docs_requisitos_usuario",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_senha_hash",
+      "target": "docs_requisitos_usuario",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_secretario",
+      "target": "docs_requisitos_cadastro_aluno",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_secretario",
+      "target": "docs_requisitos_matricula",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_secretario",
+      "target": "docs_requisitos_boletim",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_secretario",
+      "target": "docs_requisitos_historico",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_coordenador",
+      "target": "docs_requisitos_financeiro",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_coordenador",
+      "target": "docs_requisitos_encerramento",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_coordenador",
+      "target": "docs_requisitos_lancamento_notas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_coordenador",
+      "target": "docs_requisitos_desempenho",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_aluno",
+      "target": "docs_requisitos_curso",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_disciplina",
+      "target": "docs_requisitos_curso",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_pre_requisito",
+      "target": "docs_requisitos_disciplina",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_turma",
+      "target": "docs_requisitos_disciplina",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_turma",
+      "target": "docs_requisitos_professor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_matricula",
+      "target": "docs_requisitos_aluno",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_matricula",
+      "target": "docs_requisitos_turma",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_matricula",
+      "target": "docs_requisitos_usuario",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_log_nota",
+      "target": "docs_requisitos_matricula",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn01",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn02",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn03",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn04",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn05",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn06",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn09",
+      "target": "docs_requisitos_matricula",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn07",
+      "target": "docs_requisitos_lancamento_notas",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_rn08",
+      "target": "docs_requisitos_log_nota",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 2",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_frequencia",
+      "target": "docs_requisitos_rn04",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_requisitos_exame",
+      "target": "docs_requisitos_lancamento_notas",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Willi\\Documents\\SGA-Rust\\docs\\requisitos.pdf",
+      "source_location": "page 3",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

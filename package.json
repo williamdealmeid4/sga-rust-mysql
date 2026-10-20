@@ -1,0 +1,11 @@
+{
+  "name": "sga-ui-checks",
+  "private": true,
+  "description": "Development-only DOM tests; not required to run the Rust executable",
+  "scripts": {
+    "test": "node scripts/ui_test.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.3"
+  }
+}

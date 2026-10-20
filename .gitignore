@@ -1,0 +1,12 @@
+/target/
+/node_modules/
+/data/
+/bin/*.exe
+*.log
+.env.local
+*.local.sql
+/database/.*
+*.mwb.bak
+/docs/requisitos.pdf
+/dist/
+/graphify-out/.*

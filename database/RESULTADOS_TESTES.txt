@@ -1,0 +1,56 @@
+numero	teste	resultado	sqlstate_erro	codigo_erro
+1	Banco de testes separado	PASSOU	NULL	NULL
+2	Massa: 5 usuários	PASSOU	NULL	NULL
+3	Massa: 2 Coordenadores	PASSOU	NULL	NULL
+4	Massa: 3 cursos	PASSOU	NULL	NULL
+5	Massa: 6 disciplinas	PASSOU	NULL	NULL
+6	Massa: 5 professores	PASSOU	NULL	NULL
+7	Massa: 20 alunos	PASSOU	NULL	NULL
+8	Massa: 5 turmas	PASSOU	NULL	NULL
+9	Massa: 35 matrículas	PASSOU	NULL	NULL
+10	Senha: salt individual, sem texto puro	PASSOU	NULL	NULL
+11	Login com senha incorreta	PASSOU	45000	1644
+12	Login com usuário inexistente	PASSOU	45000	1644
+13	View sem sessão não revela boletins	PASSOU	NULL	NULL
+14	Login válido retorna identidade de sessão	PASSOU	NULL	NULL
+15	RN05: turma lotada	PASSOU	45000	1644
+16	RN06: sem pré-requisito	PASSOU	45000	1644
+17	RN09: aluno Trancado	PASSOU	45000	1644
+18	Unicidade: matrícula duplicada	PASSOU	23000	1062
+19	RN07: nota 11 rejeitada pelo CHECK	PASSOU	HY000	3819
+20	Faltas maiores que total de aulas	PASSOU	45000	1644
+21	RN01: média parcial	PASSOU	NULL	NULL
+22	RN02: média 6,995 não arredonda para aprovação	PASSOU	NULL	NULL
+23	RN02: média menor que 4	PASSOU	NULL	NULL
+24	RN04: frequência exatamente 75% aprova	PASSOU	NULL	NULL
+25	RN02: situação Em Exame	PASSOU	NULL	NULL
+26	RN03: exame e média final 5	PASSOU	NULL	NULL
+27	Exame bloqueado fora da situação Em Exame	PASSOU	45000	1644
+28	RN04: nota 9 com frequência inferior a 75%	PASSOU	NULL	NULL
+29	Função de frequência	PASSOU	NULL	NULL
+30	Função de situação	PASSOU	NULL	NULL
+31	RN08: exatamente um log para uma nota alterada	PASSOU	NULL	NULL
+32	RN08: valor anterior, novo e responsável	PASSOU	NULL	NULL
+33	Consulta vw_boletim	PASSOU	NULL	NULL
+34	Consulta vw_turmas_lotacao	PASSOU	NULL	NULL
+35	Consulta vw_desempenho_turma	PASSOU	NULL	NULL
+36	Pré-requisitos sem ciclos	PASSOU	45000	1644
+37	Exclusão preserva histórico com notas	PASSOU	45000	1644
+38	FK preserva aluno com matrículas	PASSOU	23000	1451
+39	Secretário sem acesso ao lançamento	PASSOU	45000	1644
+40	Secretário não pode usar ID do Coordenador	PASSOU	45000	1644
+41	Secretário sem acesso ao fechamento	PASSOU	45000	1644
+42	Secretário sem acesso ao financeiro	PASSOU	45000	1644
+43	View de desempenho restrita ao Coordenador	PASSOU	NULL	NULL
+44	View de usuários restrita ao Coordenador	PASSOU	NULL	NULL
+45	RN06: aprovação anterior permite matrícula	PASSOU	NULL	NULL
+46	Fechamento com pendências não altera turmas	PASSOU	45000	1644
+47	Rollback de fechamento com pendências	PASSOU	NULL	NULL
+48	Fechamento em lote com rollback após primeira turma	PASSOU	45000	1644
+49	Transação reverte turma já processada pelo cursor	PASSOU	NULL	NULL
+50	Encerramento de semestre concluído	PASSOU	NULL	NULL
+51	Notas bloqueadas após encerramento	PASSOU	45000	1644
+52	Matrículas bloqueadas após encerramento	PASSOU	45000	1644
+53	Logout invalida sessão	PASSOU	NULL	NULL
+testes_aprovados
+53

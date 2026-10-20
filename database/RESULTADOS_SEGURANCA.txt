@@ -1,0 +1,5 @@
+PASS: concurrent enrollment for last seat: one commit, one rejection, final occupancy 1
+PASS DENIED direct SQL access
+PASS DENIED direct SQL access
+PASS DENIED direct SQL access
+PASS View hides data without session
