@@ -53,7 +53,8 @@ async fn security_headers(mut response: Response) -> Response {
     );
     h.insert("x-frame-options", HeaderValue::from_static("DENY"));
     h.insert("referrer-policy", HeaderValue::from_static("same-origin"));
-    h.insert("content-security-policy",HeaderValue::from_static("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"));
+    h.insert("content-security-policy",HeaderValue::from_static("default-src 'self'; script-src 'self'; style-src 'self'; style-src-attr 'none'; img-src 'self' data:; object-src 'none'; base-uri 'none'; connect-src 'self'; media-src 'self'; frame-ancestors 'none'; form-action 'self'"));
+    h.insert("permissions-policy", HeaderValue::from_static("camera=(), microphone=(), geolocation=()"));
     response
 }
 async fn login(State(state): State<Shared>, Json(body): Json<Value>) -> Result<Response, ApiError> {
@@ -227,6 +228,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
             }),
         )
+        .route("/theme.js", get(|| async {
+            ([(header::CONTENT_TYPE, "text/javascript; charset=utf-8")], include_str!("../web/theme.js"))
+        }))
+        .route("/intro.mp4", get(|| async {
+            ([(header::CONTENT_TYPE, "video/mp4")], &include_bytes!("../web/intro.mp4")[..])
+        }))
         .route("/api/login", post(login))
         .route("/api/logout", post(logout))
         .route("/api/me", get(me))

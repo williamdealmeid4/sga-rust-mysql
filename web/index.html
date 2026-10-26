@@ -1,3 +1,23 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#112b3c"><title>SGA | Faculdade do Bug Infinito</title><link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script></head>
-<body><div id="app"><div class="boot">Carregando o SGA…</div></div><dialog id="modal" aria-labelledby="modal-title"></dialog><div id="toast" role="status" aria-live="polite"></div></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#112b3c">
+  <title>SGA | Faculdade do Bug Infinito</title>
+  <script src="/theme.js"></script>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <section id="intro" class="intro" aria-label="Abertura do SGA" hidden>
+    <video id="intro-video" muted playsinline preload="none" aria-hidden="true"></video>
+    <div class="intro-caption"><strong>SGA</strong><p>Faculdade do Bug Infinito</p></div>
+    <button type="button" class="intro-skip" data-action="skip-intro">Pular abertura</button>
+  </section>
+  <div id="app"><div class="boot" role="status">Carregando o SGA…</div></div>
+  <dialog id="modal" aria-labelledby="modal-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <noscript>Ative o JavaScript no navegador para acessar o SGA.</noscript>
+</body>
+</html>

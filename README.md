@@ -55,3 +55,30 @@ Os relatórios `database/RESULTADOS_*.txt` registram a validação já executada
 Senhas usam Argon2id; o navegador não recebe hashes. Sessões expiram e o banco guarda apenas o hash do token. Há autorização no backend e nas procedures, SQL parametrizado, limite de tentativas de login e cookie HttpOnly/SameSite. A configuração e os dados locais não entram no GitHub nem no ZIP público. O sistema foi feito para uso local; a conta demonstrativa e esta configuração não devem ser expostas à internet.
 
 Consulte `STATUS_ENTREGA.md` para saber os testes executados e as verificações finais ainda pendentes.
+
+## Abertura e aparência
+
+A primeira visita em cada aba apresenta um vídeo local, silencioso, de 3 segundos
+com a marca da faculdade. É possível usar **Pular abertura** ou Escape quando a
+abertura está em foco. Com a preferência de movimento reduzido, a entrada é direta.
+Se o vídeo falhar, o sistema libera a interface automaticamente.
+
+O botão de tema aparece na entrada e no cabeçalho do painel. A aparência acompanha
+o sistema operacional até uma escolha manual, que fica salva no navegador. Nenhum
+dado acadêmico ou credencial é salvo para esse recurso. Os relatórios continuam
+com fundo branco na impressão.
+
+O vídeo está em `web/intro.mp4` e é incluído no executável Rust, sem serviços
+externos. Para regenerá-lo, use `python scripts/create_intro.py` com Pillow e FFmpeg
+instalados; essas ferramentas não são necessárias para executar o SGA.
+
+Para verificar somente a interface, sem conectar ao banco:
+
+```sh
+npm ci
+npm run test:frontend
+```
+
+As alterações de frontend e cabeçalhos exigem recompilar o executável com
+`cargo build --release`. Nenhum script SQL precisa ser executado para esta atualização.
+Consulte `security_best_practices_report.md` para o escopo da revisão de segurança.
