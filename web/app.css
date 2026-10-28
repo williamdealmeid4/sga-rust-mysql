@@ -21,3 +21,22 @@
 @media(max-width:640px){.topbar-right{gap:6px}.topbar .theme-toggle{padding:8px;min-height:34px}.topbar-right>.avatar{display:none}.login-area>.theme-toggle{align-self:flex-end}.intro-caption{margin-top:190px}.intro-caption p{font-size:12px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.intro{display:none}}
 @media print{:root[data-theme]{color-scheme:light;--ink:#000;--muted:#444;--surface:#fff;--surface-soft:#fff;--line:#ddd}.intro,.theme-toggle{display:none!important}.panel,th,td,.report-summary,.student-summary{background:white!important;color:black!important}}
+
+/* Refinamento do painel acadêmico: foco, ritmo e leitura dos dados. */
+@media screen {
+  :root { --paper: #edf2f3; --line: #cddcde; --muted: #506875; }
+  :root[data-theme="dark"] { --paper: #101e29; --line: #456173; --muted: #b4c8d4; }
+  .content { padding-top: clamp(24px, 3vw, 40px); }
+  .page-head h1 { font-size: clamp(27px, 2.7vw, 36px); letter-spacing: -.03em; }
+  .page-head p { max-width: 65ch; }
+  .topbar { border-bottom: 1px solid var(--line); }
+  .panel, .metric { border-radius: 12px; box-shadow: none; }
+  .metric strong, td, .report-summary { font-variant-numeric: tabular-nums; }
+  .panel-head { gap: 16px; }
+  .btn, .theme-toggle { min-height: 44px; }
+  .field input, .field select, .filter-select, .search { min-height: 44px; }
+  :where(button, a, input, select, textarea):focus-visible { outline: 3px solid #208b80; outline-offset: 3px; }
+  :root[data-theme="dark"] :where(button, a, input, select, textarea):focus-visible { outline-color: #a0ece1; }
+  ::selection { color: #102b32; background: #a7e2d5; }
+}
+@media (max-width: 640px) { .panel-head { align-items: flex-start; } }
