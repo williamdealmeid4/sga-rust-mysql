@@ -1968,13 +1968,34 @@ button:focus-visible,a:focus-visible { outline-color:#879eff }
 .login-form { min-width:0 }
 .demo-buttons { flex-wrap:wrap }
 
+.login { grid-template-columns:minmax(0,1.06fr) minmax(0,1fr) }
+.login-area {
+  display:grid;
+  grid-template-columns:minmax(0,370px);
+  grid-template-rows:auto minmax(0,1fr);
+  align-content:center;
+}
+.login-area>.theme-toggle { justify-self:end }
+.login-form { align-self:center }
+.page-head > div:first-child,.panel-head > div:first-child { flex:1 1 16rem }
+.head-actions:empty { display:none }
+.search-wrap { flex:1 1 16rem }
+.toolbar > *,.form-grid > * { min-width:0; max-width:100% }
+.form-grid { grid-template-columns:repeat(2,minmax(0,1fr)) }
+.modal-foot { flex-wrap:wrap; align-items:center }
+.table-wrap { min-width:0; overflow-x:auto }
+.page-foot { flex-wrap:wrap; gap:6px 16px }
+
 @media(max-width:900px) {
   .page-head { align-items:flex-start }
 }
 @media(max-width:640px) {
+  .login,.form-grid { grid-template-columns:minmax(0,1fr) }
+  .login-area { grid-template-rows:auto auto }
   .topbar { align-items:center; flex-wrap:wrap; min-height:62px }
   .topbar-right { justify-content:flex-start }
   .head-actions { row-gap:8px }
+  .modal-head,.modal-body,.modal-foot { padding-inline:16px }
 }
 @media(max-width:380px) {
   .metrics { grid-template-columns:minmax(0,1fr) }
