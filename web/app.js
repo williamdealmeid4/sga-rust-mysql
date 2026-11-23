@@ -851,14 +851,14 @@ function confirmDelete(key) {
   const v = find(kind, key);
   modalContext = { mode: "delete", kind, key };
   showModal(
-    kind === "matriculas" ? "Cancelar matrícula" : "Excluir " + singular[kind],
+    kind === "matriculas" ? "Excluir matrícula" : "Excluir " + singular[kind],
     "Confira o registro antes de continuar.",
-    `<form id="delete-form"><div class="modal-body"><p>Deseja ${kind === "matriculas" ? "cancelar esta matrícula" : "excluir este registro"}?</p><div class="notice"><strong>#${v.id} · ${esc(
+    `<form id="delete-form"><div class="modal-body"><p>Deseja ${kind === "matriculas" ? "excluir esta matrícula" : "excluir este registro"}?</p><div class="notice"><strong>#${v.id} · ${esc(
       v.nome ||
         v.descricao ||
         `${name("alunos", v.aluno_id)} · ${name("disciplinas", find("turmas", v.turma_id).disciplina_id)}`
-    )}</strong></div><p class="muted">Registros com vínculos acadêmicos, notas ou auditoria são protegidos contra exclusão.</p><div class="error" id="form-error" role="alert"></div></div>${modalFoot(
-      kind === "matriculas" ? "Cancelar matrícula" : "Excluir registro",
+    )}</strong></div>${kind === "matriculas" ? '<p class="muted">As notas e a auditoria desta matrícula também serão excluídas.</p>' : ""}<div class="error" id="form-error" role="alert"></div></div>${modalFoot(
+      kind === "matriculas" ? "Excluir matrícula" : "Excluir registro",
       "danger"
     )}</form>`
   );

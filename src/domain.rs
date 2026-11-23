@@ -562,18 +562,6 @@ impl AcademicSnapshot {
                 "Cobranças pagas ou canceladas são preservadas. Utilize o status Cancelado.".into(),
             );
         }
-        if kind == "matriculas" {
-            if self.find("turmas", id(&value, "turma_id"))?["encerrada"] == true {
-                return Err("Não é possível cancelar matrícula de turma encerrada.".into());
-            }
-            if ["n1", "n2", "exame"].iter().any(|k| !value[k].is_null())
-                || self.logs.iter().any(|l| id(l, "matricula_id") == key)
-            {
-                return Err(
-                    "Matrícula com notas ou auditoria deve ser preservada no histórico.".into(),
-                );
-            }
-        }
         if kind == "usuarios" && self.logs.iter().any(|l| id(l, "usuario_id") == key) {
             return Err(
                 "Este usuário possui registros de auditoria e deve ser preservado.".into(),
