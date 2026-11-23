@@ -1977,6 +1977,7 @@ button:focus-visible,a:focus-visible { outline-color:#879eff }
 }
 .login-area>.theme-toggle { justify-self:end }
 .login-form { align-self:center }
+#student-age:empty { display:none }
 .page-head > div:first-child,.panel-head > div:first-child { flex:1 1 16rem }
 .head-actions:empty { display:none }
 .search-wrap { flex:1 1 16rem }

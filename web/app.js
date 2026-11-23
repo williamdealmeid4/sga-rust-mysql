@@ -736,7 +736,7 @@ function fieldHtml([key, label, type, wide], value, record, isNew) {
 }
 
 function studentAge(value) {
-  if (!value) return "Informe a data de nascimento para calcular a idade.";
+  if (!value) return "";
   const birth = new Date(value + "T12:00:00");
   const today = new Date();
   if (Number.isNaN(birth.getTime()) || birth > today) return "Informe uma data de nascimento válida.";
