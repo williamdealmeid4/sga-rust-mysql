@@ -729,25 +729,7 @@ function fieldHtml([key, label, type, wide], value, record, isNew) {
       type === "password" ? 'minlength="8" maxlength="128" autocomplete="new-password"' : 'maxlength="250"'
     }>`;
   }
-  if (key === "nascimento") {
-    control += `<div class="hint" id="student-age" aria-live="polite">${studentAge(value)}</div>`;
-  }
   return `<div class="field ${wide || ""}"><label for="field-${key}">${label}${optional ? ' <span class="muted">(opcional)</span>' : ""}</label>${control}${key === "senha" && !isNew ? '<div class="hint">Deixe em branco para manter a senha atual.</div>' : ""}</div>`;
-}
-
-function studentAge(value) {
-  if (!value) return "";
-  const birth = new Date(value + "T12:00:00");
-  const today = new Date();
-  if (Number.isNaN(birth.getTime()) || birth > today) return "Informe uma data de nascimento válida.";
-  let age = today.getFullYear() - birth.getFullYear();
-  if (
-    today.getMonth() < birth.getMonth() ||
-    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
-  ) {
-    age--;
-  }
-  return `Idade: ${age} ${age === 1 ? "ano" : "anos"}.`;
 }
 
 function enrollmentNewStudent() {
@@ -1300,9 +1282,6 @@ document.addEventListener("click", async event => {
 });
 
 document.addEventListener("input", event => {
-  if (event.target.id === "field-nascimento") {
-    $("#student-age").textContent = studentAge(event.target.value);
-  }
   if (event.target.id === "table-search") {
     state.search = event.target.value;
     state.page = 1;
