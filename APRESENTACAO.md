@@ -1,40 +1,85 @@
-# Roteiro de apresentação
+# Guia de Apresentação — Zed (Rust) + MySQL Workbench
 
-1. Abra o projeto inteiro no Zed: `C:\Users\Willi\Documents\SGA-Rust`.
-2. No Workbench abra a conexão **Local instance MySQL80**. Atualize **Schemas** e expanda **sga_fbi > Tables**. Para abrir uma tabela: botão direito > **Select Rows - Limit 1000**.
-3. Abra também `database/SGA-diagrama.mwb` no Workbench. O diagrama fica na aba do modelo; as tabelas e os dados reais ficam na aba da conexão. O modelo é uma representação da estrutura, não uma tela de dados ao vivo.
-4. Abra `Iniciar SGA.cmd` e entre como `coordenador`, senha `Fbi@2026`.
-5. Cadastre um aluno de demonstração com RA/CPF/e-mail exclusivos. Consulte `SELECT * FROM sga_fbi.aluno ORDER BY id_aluno DESC;` no Workbench. Altere o nome no sistema e execute novamente a consulta; exclua o aluno ainda sem vínculos e confira a remoção.
-6. Mostre turmas, vagas, matrículas, notas, exame e frequência. Notas entre 0 e 10; frequência abaixo de 75% reprova. Média parcial >=7 aprova, >=4 e <7 permite exame, abaixo de 4 reprova. No exame, média final >=5 aprova.
-7. Mostre auditoria e histórico. A trigger registra as mudanças das notas no banco. Registros com histórico não podem ser excluídos livremente.
-8. Mostre cobranças e relatório financeiro após instalar `07_financeiro.sql`. Crie uma cobrança, altere para Pago com a data, confira o relatório. Cobranças pagas/canceladas são preservadas; pendentes podem ser excluídas com auditoria.
-9. Entre como `secretario`: demonstre que notas, usuários, fechamento e financeiro não ficam disponíveis. O backend e o MySQL também recusam acessos indevidos.
-10. Fechamento de semestre é uma operação definitiva para as turmas do semestre; demonstre em uma cópia de teste. Se houver pendências, a transação inteira é revertida.
+**Integrantes do Grupo:**
+- André Cavalcante Moreira
+- William de Almeida
+- Nícolas Silva Botelho Pereira
+- Hitalo Guylherme Barbosa Pereira
 
-## Explicar o fluxo
+Este roteiro reúne os pontos mais importantes do código em **Rust** (para mostrar no **Zed**) e as consultas em **SQL** (para demonstrar ao vivo no **MySQL Workbench**).
 
-Formulário → fetch HTTP → rota Axum → autorização/validação Rust → SQLx com parâmetros → stored procedure → regras/FKs/triggers → COMMIT → leitura atualizada do MySQL → tela.
+---
 
-O MySQL é a fonte dos dados. O objeto AcademicSnapshot é temporário e serve à validação, não substitui o banco. O banco também valida as regras para impedir inconsistências entre requisições simultâneas.
+## 1. Principais Comandos em Rust para Mostrar no Zed
 
-## Mostrar SQL
+Abra a pasta do projeto no Zed (`C:\Users\Willi\Documents\SGA-Rust`) e deixe abertos os 3 arquivos de `src/`:
+
+### A. `src/main.rs` — Rotas da API e Autenticação Argon2id
+- **Autenticação (`fn login`, linhas 78–163):**
+  - Mostra como o Rust busca o hash no banco com `sqlx::query("CALL sp_CredencialLogin(?)")`, libera a conexão do pool e verifica a senha usando `Argon2::default().verify_password(...)` dentro de `tokio::task::spawn_blocking`.
+  - Se a senha estiver correta, chama `CALL sp_LoginUsuario(?, ?)` para gravar a sessão na tabela `sessao_usuario` e devolve o cookie `HttpOnly`.
+- **Rotas REST (`fn main`, linhas 245–295):**
+  - Mostra o `Router::new()` do Axum mapeando `/api/records/{kind}` (`POST` para criar) e `/api/records/{kind}/{id}` (`PUT` para editar, `DELETE` para excluir), além de `/api/grades/{id}` (notas) e `/api/close` (fechamento de semestre).
+
+### B. `src/mysql_repo.rs` — Comunicação com o MySQL via Stored Procedures
+- **Conexão segura com Pool (`Repository::connect`, linhas 74–88):**
+  - Usa `MySqlConnectOptions::from_str(url)?.ssl_mode(MySqlSslMode::Required)` e `MySqlPoolOptions::new().max_connections(8)`.
+- **Mapeamento de Erros do Banco (`fn db_error`, linhas 21–52):**
+  - Traduz os códigos de erro do MySQL para respostas HTTP claras:
+    - `1644`: erro disparado pelas triggers/procedures com `SIGNAL SQLSTATE '45000'` (ex.: turma lotada, falta de pré-requisito).
+    - `1062`: violação de `UNIQUE` (CPF, RA ou e-mail duplicado).
+    - `1451`: bloqueio de `FOREIGN KEY` ao tentar excluir registro que possui histórico/vínculos.
+- **Execução parametrizada (`Repository::upsert` e `Repository::delete`, linhas 145–338):**
+  - Mostra os comandos `sqlx::query("CALL sp_salvar_aluno(?,?,?,?,?,?,?,?,?)").bind(...)` e `sqlx::query("CALL sp_excluir_cadastro(?,?,?)")`.
+  - Destaque que **não há concatenação de strings SQL** (prevenção total contra SQL Injection) e que logo após gravar no MySQL o Rust chama `Self::data(conn, actor)` para ler o estado real persistido no banco.
+
+### C. `src/domain.rs` — Cálculo Acadêmico e Regras de Negócio
+- **Cálculo de Média, Exame e Frequência (`fn result_grade`, linhas 51–85):**
+  - Implementa as regras acadêmicas: frequência mínima de 75%, média parcial `(N1 + N2) / 2`, aprovação direta (`>= 7.0`), exame (`4.0 <= parcial < 7.0` com média final `(parcial + exame) / 2 >= 5.0`).
+- **Prevenção de Ciclos em Pré-requisitos (`fn reaches`, linhas 195–210):**
+  - Busca em profundidade (DFS) garantindo que uma disciplina não crie dependência circular.
+
+---
+
+## 2. Demonstração ao Vivo: Sistema Web <-> MySQL Workbench
+
+> **Importante no MySQL Workbench:**
+> - Use a conexão administrativa (**Local instance MySQL80**).
+> - Se ainda não tiver executado o módulo financeiro no banco principal, abra e execute `database/07_financeiro.sql` uma vez no Workbench.
+> - No navegador, cada registro exibe seu **`#ID`** (ex.: `#21`), que corresponde exatamente à chave primária (`id_aluno`, `id_curso`, `id_matricula`) no MySQL.
+> - Se você alterar algo direto pelo Workbench, clique no botão **Atualizar** no topo do sistema web para recarregar os dados do MySQL imediatamente.
+
+### Passo a Passo do CRUD ao Vivo (Consultas para o Workbench)
+
+Deixe uma aba SQL aberta no MySQL Workbench com os comandos abaixo:
 
 ```sql
 USE sga_fbi;
-SHOW TABLES;
-SHOW PROCEDURE STATUS WHERE Db='sga_fbi';
-SHOW TRIGGERS;
-SELECT * FROM aluno ORDER BY id_aluno DESC;
-SELECT * FROM matricula ORDER BY id_matricula;
-SELECT * FROM log_nota ORDER BY id_log DESC LIMIT 20;
-SELECT * FROM cobranca ORDER BY id_cobranca DESC;
-SELECT * FROM log_financeiro ORDER BY id_log DESC LIMIT 20;
+
+-- 1. Conferir alunos (execute antes e depois de criar/editar/excluir um aluno na interface web)
+SELECT id_aluno, ra, nome, cpf, email, data_nascimento, id_curso, status
+FROM aluno
+ORDER BY id_aluno DESC;
+
+-- 2. Conferir matrículas e notas (execute após matricular ou lançar notas na interface web)
+SELECT id_matricula, id_aluno, id_turma, data_matricula, n1, n2, exame, faltas, media_final, situacao
+FROM matricula
+ORDER BY id_matricula DESC;
+
+-- 3. Conferir auditoria automática gerada pela trigger trg_auditoria_nota após alterar notas
+SELECT id_log, id_matricula, campo, valor_antigo, valor_novo, usuario, data_hora
+FROM log_nota
+ORDER BY id_log DESC
+LIMIT 20;
+
+-- 4. Conferir cobranças e log financeiro (após executar 07_financeiro.sql)
+SELECT id_cobranca, id_aluno, id_curso, descricao, valor, vencimento, status, data_pagamento
+FROM cobranca
+ORDER BY id_cobranca DESC;
+
+-- 5. Listar objetos programados no banco (Procedures, Functions, Triggers e Views)
+SHOW PROCEDURE STATUS WHERE Db = 'sga_fbi';
+SHOW FUNCTION STATUS WHERE Db = 'sga_fbi';
+SHOW TRIGGERS FROM sga_fbi;
+SHOW FULL TABLES FROM sga_fbi WHERE Table_type = 'VIEW';
 ```
-
-Use a conexão administrativa pessoal no Workbench. As views protegidas exigem sessão da aplicação; consultar uma view sem sessão pode retornar zero linhas deliberadamente.
-
-## Relações principais
-
-Curso possui disciplinas e alunos; disciplina pode ter pré-requisitos e turmas; professor leciona turmas; matrícula liga aluno e turma; log_nota registra alterações da matrícula; usuário identifica o responsável e possui sessões. Cobrança liga aluno, curso e usuário; log_financeiro preserva o histórico inclusive de cobranças pendentes excluídas.
-
-O sal do Argon2id é único e está codificado dentro do próprio hash. Os segredos de conexão ficam em `.env.local`, nunca no JavaScript. SQLx exige TLS para conectar ao MySQL.

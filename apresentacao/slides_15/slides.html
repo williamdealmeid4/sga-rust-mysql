@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>SGA — Rust + MySQL</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0b1528; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #e8edf5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .slide {
+    width: 1280px; height: 720px;
+    padding: 46px 64px 40px;
+    position: relative; overflow: hidden;
+    page-break-after: always; break-after: page;
+    background: linear-gradient(160deg, #0d1a33 0%, #0b1528 60%, #091121 100%);
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .slide::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
+    background: linear-gradient(#d9a441, #3fb6c9);
+  }
+  .tag {
+    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+    color: #3fb6c9; font-weight: 600; margin-bottom: 6px;
+  }
+  h1 { font-size: 34px; font-weight: 700; color: #fff; margin-bottom: 22px; line-height: 1.2; }
+  h1 span { color: #d9a441; }
+  h3 { font-size: 18px; color: #d9a441; margin: 4px 0 8px; font-weight: 600; }
+  ul { list-style: none; }
+  li {
+    font-size: 18px; line-height: 1.45; margin-bottom: 9px;
+    padding-left: 22px; position: relative; color: #d5ddea;
+  }
+  li::before {
+    content: ""; position: absolute; left: 0; top: 10px;
+    width: 8px; height: 8px; border-radius: 2px; background: #3fb6c9;
+  }
+  b { color: #fff; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; color: #f0c674; font-size: 0.92em; }
+  pre {
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 14.5px; line-height: 1.5;
+    background: #060d1a; border: 1px solid #1f3355; border-radius: 10px;
+    padding: 16px 18px; color: #cfd8e6; white-space: pre; overflow: hidden;
+  }
+  pre .k { color: #c792ea; }
+  pre .s { color: #c3e88d; }
+  pre .c { color: #61759a; font-style: italic; }
+  pre .f { color: #82aaff; }
+  pre .n { color: #f78c6c; }
+  .file {
+    display: inline-block; font-family: Consolas, monospace; font-size: 12.5px;
+    background: #14264a; color: #8fb3e6; padding: 3px 10px; border-radius: 6px 6px 0 0;
+    border: 1px solid #1f3355; border-bottom: none;
+  }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+  .cols.wide { grid-template-columns: 0.85fr 1.15fr; }
+  .note {
+    position: absolute; left: 64px; right: 64px; bottom: 30px;
+    font-size: 14.5px; color: #9fb0c8; border-top: 1px solid #1f3355; padding-top: 10px;
+  }
+  .note b { color: #d9a441; }
+  .pg { position: absolute; right: 30px; top: 22px; font-size: 13px; color: #4b5f80; }
+  .card {
+    background: #10203d; border: 1px solid #1f3355; border-radius: 12px; padding: 18px 20px;
+  }
+  .card h3 { margin-top: 0; }
+  .card p { font-size: 16px; color: #c3cee0; line-height: 1.45; }
+
+  /* Capa */
+  .cover { display: flex; flex-direction: column; justify-content: center; padding: 70px 90px; }
+  .cover .tag { font-size: 15px; }
+  .cover h1 { font-size: 46px; margin-bottom: 14px; }
+  .cover .sub { font-size: 21px; color: #9fb0c8; margin-bottom: 40px; max-width: 900px; }
+  .cover .grp { font-size: 15px; color: #3fb6c9; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+  .cover .names { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; font-size: 20px; color: #fff; max-width: 820px; }
+  .cover .stack { margin-top: 44px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .pill { font-size: 14px; padding: 6px 14px; border-radius: 20px; border: 1px solid #2c4672; color: #c3cee0; background: #10203d; }
+
+  /* Arquitetura */
+  .flow { display: grid; grid-template-columns: 1fr 60px 1fr 60px 1fr; align-items: stretch; margin-top: 10px; }
+  .arrow { display: flex; align-items: center; justify-content: center; font-size: 34px; color: #d9a441; }
+  .flow .card { min-height: 300px; }
+  .flow .card .layer { font-size: 13px; color: #3fb6c9; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .flow .card li { font-size: 15.5px; }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 16px; }
+  table.t th { text-align: left; color: #3fb6c9; font-weight: 600; padding: 8px 10px; border-bottom: 2px solid #1f3355; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  table.t td { padding: 9px 10px; border-bottom: 1px solid #1a2c4d; color: #d5ddea; vertical-align: top; }
+  table.t td:first-child { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- 1. CAPA -->
+<section class="slide cover">
+  <div class="tag">Laboratório de Banco de Dados · Faculdade do Bug Infinito</div>
+  <h1>Sistema de Gestão Acadêmica <span>(SGA)</span></h1>
+  <div class="sub">Persistência relacional em MySQL 8 com backend em Rust — modelagem em 3FN, programação no SGBD e integração via Stored Procedures</div>
+  <div class="grp">Integrantes</div>
+  <div class="names">
+    <div>André Cavalcante Moreira</div>
+    <div>William de Almeida</div>
+    <div>Nícolas Silva Botelho Pereira</div>
+    <div>Hitalo Guylherme Barbosa Pereira</div>
+  </div>
+  <div class="stack">
+    <span class="pill">MySQL 8</span><span class="pill">Procedures · Triggers · Functions · Views</span>
+    <span class="pill">Rust · Axum · Tokio · SQLx</span><span class="pill">Argon2id</span><span class="pill">HTML · CSS · JavaScript</span>
+  </div>
+</section>
+
+<!-- 2. CONTEXTO -->
+<section class="slide">
+  <div class="pg">02</div>
+  <div class="tag">Contexto</div>
+  <h1>O problema e o <span>objetivo</span> do projeto</h1>
+  <div class="cols">
+    <div>
+      <h3>O que o sistema controla</h3>
+      <ul>
+        <li>Cursos, disciplinas e a matriz de <b>pré-requisitos</b></li>
+        <li>Professores, turmas e <b>limite de vagas</b></li>
+        <li>Matrículas, notas (N1, N2, exame) e faltas</li>
+        <li>Fechamento de semestre e histórico do aluno</li>
+        <li>Usuários com perfis <b>Coordenador</b> e <b>Secretário</b></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Decisão de arquitetura</h3>
+      <ul>
+        <li>As regras ficam <b>dentro do MySQL</b>: mesmo quem acessa direto pelo Workbench não consegue gravar dado inválido</li>
+        <li>O Rust funciona como uma camada fina: autentica, chama procedures e devolve JSON</li>
+        <li>Qualquer alteração feita no site aparece na hora nas tabelas do banco</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> o banco é o "guardião" das regras; a aplicação só pede para ele executar as operações.</div>
+</section>
+
+<!-- 3. ARQUITETURA -->
+<section class="slide">
+  <div class="pg">03</div>
+  <div class="tag">Arquitetura</div>
+  <h1>Fluxo de uma requisição, <span>da tela ao banco</span></h1>
+  <div class="flow">
+    <div class="card">
+      <div class="layer">Camada 1</div>
+      <h3>Interface Web</h3>
+      <ul>
+        <li>HTML, CSS e JavaScript</li>
+        <li>Envia JSON via <code>fetch</code></li>
+        <li>Sessão por cookie <code>HttpOnly</code></li>
+        <li>Exibe o <code>#ID</code> real do banco</li>
+      </ul>
+    </div>
+    <div class="arrow">→</div>
+    <div class="card">
+      <div class="layer">Camada 2</div>
+      <h3>Servidor Rust</h3>
+      <ul>
+        <li>Axum + Tokio (assíncrono)</li>
+        <li>Valida sessão e perfil</li>
+        <li>Pool SQLx com TLS</li>
+        <li>Só executa <code>CALL sp_...(?)</code></li>
+      </ul>
+    </div>
+    <div class="arrow">→</div>
+    <div class="card">
+      <div class="layer">Camada 3</div>
+      <h3>MySQL 8 · sga_fbi</h3>
+      <ul>
+        <li>Procedures com transação</li>
+        <li>Triggers de validação</li>
+        <li>Auditoria em <code>log_nota</code></li>
+        <li>Retorna o estado atualizado</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> depois de cada gravação o Rust chama <code>sp_dados_sistema</code> e devolve à tela exatamente o que ficou salvo no MySQL.</div>
+</section>
+
+<!-- 4. MODELAGEM -->
+<section class="slide">
+  <div class="pg">04</div>
+  <div class="tag">Modelagem</div>
+  <h1>Modelo relacional em <span>3ª Forma Normal</span></h1>
+  <div class="cols wide">
+    <div>
+      <table class="t">
+        <tr><th>Grupo</th><th>Tabelas</th></tr>
+        <tr><td>Estrutura</td><td><code>curso</code>, <code>disciplina</code>, <code>pre_requisito</code>, <code>professor</code></td></tr>
+        <tr><td>Operação</td><td><code>aluno</code>, <code>turma</code>, <code>matricula</code></td></tr>
+        <tr><td>Segurança</td><td><code>usuario</code>, <code>sessao_usuario</code>, <code>log_nota</code></td></tr>
+      </table>
+      <ul style="margin-top:20px">
+        <li><code>pre_requisito</code> é uma tabela associativa (N:N de disciplina com ela mesma)</li>
+        <li><code>UNIQUE (id_aluno, id_turma)</code> impede matrícula duplicada</li>
+        <li><code>CHECK</code> garante notas entre 0 e 10</li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">database/01_estrutura.sql</div>
+<pre><span class="k">CREATE TABLE</span> matricula (
+ id_matricula <span class="k">INT UNSIGNED AUTO_INCREMENT PRIMARY KEY</span>,
+ id_aluno <span class="k">INT UNSIGNED NOT NULL</span>,
+ id_turma <span class="k">INT UNSIGNED NOT NULL</span>,
+ n1 <span class="k">DECIMAL</span>(<span class="n">4</span>,<span class="n">2</span>), n2 <span class="k">DECIMAL</span>(<span class="n">4</span>,<span class="n">2</span>), exame <span class="k">DECIMAL</span>(<span class="n">4</span>,<span class="n">2</span>),
+ faltas <span class="k">INT NOT NULL DEFAULT</span> <span class="n">0</span>,
+ situacao <span class="k">VARCHAR</span>(<span class="n">30</span>) <span class="k">NOT NULL DEFAULT</span> <span class="s">'Cursando'</span>,
+ <span class="k">CONSTRAINT</span> uq_aluno_turma <span class="k">UNIQUE</span> (id_aluno,id_turma),
+ <span class="k">CONSTRAINT</span> fk_matricula_aluno <span class="k">FOREIGN KEY</span> (id_aluno)
+   <span class="k">REFERENCES</span> aluno(id_aluno),
+ <span class="k">CONSTRAINT</span> fk_matricula_turma <span class="k">FOREIGN KEY</span> (id_turma)
+   <span class="k">REFERENCES</span> turma(id_turma),
+ <span class="k">CONSTRAINT</span> ck_n1 <span class="k">CHECK</span> (n1 <span class="k">IS NULL OR</span> n1 <span class="k">BETWEEN</span> <span class="n">0</span> <span class="k">AND</span> <span class="n">10</span>)
+) <span class="k">ENGINE</span>=InnoDB;</pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> as chaves estrangeiras impedem apagar um aluno ou turma que já tenha histórico (erro 1451).</div>
+</section>
+
+<!-- 5. FUNCTIONS -->
+<section class="slide">
+  <div class="pg">05</div>
+  <div class="tag">Programação no SGBD · Functions</div>
+  <h1>O próprio banco <span>calcula média e situação</span></h1>
+  <div class="cols">
+    <div>
+      <div class="file">database/02_programacao.sql</div>
+<pre><span class="k">CREATE FUNCTION</span> <span class="f">fn_calcular_media</span>(
+  p_n1 <span class="k">DECIMAL</span>(<span class="n">4</span>,<span class="n">2</span>), p_n2 <span class="k">DECIMAL</span>(<span class="n">4</span>,<span class="n">2</span>),
+  p_exame <span class="k">DECIMAL</span>(<span class="n">4</span>,<span class="n">2</span>))
+<span class="k">RETURNS DECIMAL</span>(<span class="n">6</span>,<span class="n">4</span>) <span class="k">DETERMINISTIC</span>
+<span class="k">BEGIN</span>
+ <span class="k">DECLARE</span> v_parcial <span class="k">DECIMAL</span>(<span class="n">6</span>,<span class="n">4</span>);
+ <span class="k">IF</span> p_n1 <span class="k">IS NULL OR</span> p_n2 <span class="k">IS NULL THEN</span>
+   <span class="k">RETURN NULL</span>;
+ <span class="k">END IF</span>;
+ <span class="k">SET</span> v_parcial = (p_n1 + p_n2) / <span class="n">2</span>;
+ <span class="k">IF</span> v_parcial &gt;= <span class="n">4</span> <span class="k">AND</span> v_parcial &lt; <span class="n">7</span>
+    <span class="k">AND</span> p_exame <span class="k">IS NOT NULL THEN</span>
+   <span class="k">RETURN</span> (v_parcial + p_exame) / <span class="n">2</span>;
+ <span class="k">END IF</span>;
+ <span class="k">RETURN</span> v_parcial;
+<span class="k">END</span></pre>
+    </div>
+    <div>
+      <h3>fn_situacao_valores</h3>
+      <ul>
+        <li>Frequência abaixo de 75% → <b>Reprovado por Falta</b></li>
+        <li>Média parcial ≥ 7 → <b>Aprovado</b></li>
+        <li>Média parcial &lt; 4 → <b>Reprovado por Nota</b></li>
+        <li>Entre 4 e 7 → <b>Em Exame</b>; aprova se média final ≥ 5</li>
+      </ul>
+      <h3 style="margin-top:16px">Outras functions</h3>
+      <ul>
+        <li><code>fn_frequencia</code> — percentual de presença</li>
+        <li><code>fn_cr_aluno</code> — coeficiente ponderado pela carga horária</li>
+        <li><code>fn_usuario_sessao</code> — identifica quem está logado</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> como o cálculo está no banco, a situação do aluno fica correta mesmo se a nota for alterada fora do sistema.</div>
+</section>
+
+<!-- 6. TRIGGERS DE INTEGRIDADE -->
+<section class="slide">
+  <div class="pg">06</div>
+  <div class="tag">Programação no SGBD · Triggers</div>
+  <h1>Triggers que <span>protegem a integridade</span></h1>
+  <div class="cols">
+    <div>
+      <div class="file">sp_validar_matricula (chamada pela trg_valida_vagas)</div>
+<pre><span class="k">SELECT</span> id_disciplina, vagas, encerrada, semestre
+  <span class="k">INTO</span> v_disc, v_vagas, v_encerrada, v_semestre
+  <span class="k">FROM</span> turma <span class="k">WHERE</span> id_turma = p_turma
+  <span class="k">FOR UPDATE</span>;
+
+<span class="k">IF</span> v_encerrada <span class="k">THEN</span>
+  <span class="k">SIGNAL SQLSTATE</span> <span class="s">'45000'</span>
+    <span class="k">SET MESSAGE_TEXT</span> = <span class="s">'Turma encerrada.'</span>;
+<span class="k">END IF</span>;
+
+<span class="k">SELECT COUNT</span>(*) <span class="k">INTO</span> v_count
+  <span class="k">FROM</span> matricula <span class="k">WHERE</span> id_turma = p_turma;
+<span class="k">IF</span> v_count &gt;= v_vagas <span class="k">THEN</span>
+  <span class="k">SIGNAL SQLSTATE</span> <span class="s">'45000'</span>
+    <span class="k">SET MESSAGE_TEXT</span> = <span class="s">'RN05: turma lotada.'</span>;
+<span class="k">END IF</span>;</pre>
+    </div>
+    <div>
+      <h3>trg_valida_vagas · BEFORE INSERT ON matricula</h3>
+      <ul>
+        <li>Bloqueia turma encerrada, lotada ou de outro curso</li>
+        <li>Exige aluno com status <b>Ativo</b></li>
+        <li>Confere aprovação nos pré-requisitos (RN06)</li>
+      </ul>
+      <h3 style="margin-top:14px">trg_protege_turma · BEFORE UPDATE ON turma</h3>
+      <ul>
+        <li>Não deixa reduzir vagas abaixo dos matriculados</li>
+        <li>Com alunos, preserva disciplina, semestre e total de aulas</li>
+      </ul>
+      <h3 style="margin-top:14px">trg_valida_pre_requisito</h3>
+      <ul><li>Usa <code>WITH RECURSIVE</code> para impedir ciclos</li></ul>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> o <code>SIGNAL SQLSTATE '45000'</code> cancela a operação e a mensagem chega até a tela do usuário.</div>
+</section>
+
+<!-- 7. AUDITORIA -->
+<section class="slide">
+  <div class="pg">07</div>
+  <div class="tag">Programação no SGBD · Auditoria</div>
+  <h1>Trigger de auditoria: <span>trg_auditoria_nota</span></h1>
+  <div class="cols wide">
+    <div>
+      <ul>
+        <li>Dispara <b>AFTER UPDATE</b> na tabela <code>matricula</code></li>
+        <li>Compara cada campo com <code>OLD</code> e <code>NEW</code></li>
+        <li>O operador <code>&lt;=&gt;</code> trata <code>NULL</code> corretamente (nota ainda não lançada)</li>
+        <li>Grava em <code>log_nota</code>: campo, valor antigo, valor novo, usuário e data/hora</li>
+        <li>Matrícula com auditoria não pode ser excluída (<code>trg_preserva_matricula</code>)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">database/02_programacao.sql</div>
+<pre><span class="k">CREATE TRIGGER</span> <span class="f">trg_auditoria_nota</span>
+<span class="k">AFTER UPDATE ON</span> matricula <span class="k">FOR EACH ROW</span>
+<span class="k">BEGIN</span>
+ <span class="k">DECLARE</span> v_nome <span class="k">VARCHAR</span>(<span class="n">150</span>);
+ <span class="k">SELECT</span> nome <span class="k">INTO</span> v_nome <span class="k">FROM</span> usuario
+  <span class="k">WHERE</span> id_usuario = NEW.id_usuario;
+
+ <span class="k">IF NOT</span>(OLD.n1 &lt;=&gt; NEW.n1) <span class="k">THEN</span>
+  <span class="k">INSERT INTO</span> log_nota(id_matricula, campo,
+    valor_antigo, valor_novo, usuario, id_usuario)
+  <span class="k">VALUES</span>(NEW.id_matricula, <span class="s">'n1'</span>,
+    OLD.n1, NEW.n1, v_nome, NEW.id_usuario);
+ <span class="k">END IF</span>;
+ <span class="c">-- mesmo padrão para n2, exame e faltas</span>
+<span class="k">END</span></pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> na demonstração, lançamos uma nota no site e mostramos a linha nova em <code>log_nota</code> no Workbench.</div>
+</section>
+
+<!-- 8. TRANSAÇÕES -->
+<section class="slide">
+  <div class="pg">08</div>
+  <div class="tag">Programação no SGBD · Transações</div>
+  <h1>Stored Procedures com <span>controle transacional</span></h1>
+  <div class="cols">
+    <div>
+      <div class="file">sp_matricular_aluno</div>
+<pre><span class="k">DECLARE EXIT HANDLER FOR SQLEXCEPTION</span>
+  <span class="k">BEGIN ROLLBACK</span>; <span class="k">RESIGNAL</span>; <span class="k">END</span>;
+<span class="k">SET TRANSACTION ISOLATION LEVEL READ COMMITTED</span>;
+<span class="k">START TRANSACTION</span>;
+  <span class="k">INSERT INTO</span> matricula(id_aluno, id_turma,
+    data_matricula, id_usuario)
+  <span class="k">VALUES</span>(p_id_aluno, p_id_turma,
+    <span class="k">CURRENT_DATE</span>, p_id_usuario);
+  <span class="k">SET</span> v_id = <span class="f">LAST_INSERT_ID</span>();
+<span class="k">COMMIT</span>;</pre>
+      <ul style="margin-top:14px">
+        <li>Qualquer erro dispara <b>ROLLBACK</b> e devolve a mensagem</li>
+        <li><code>FOR UPDATE</code> na turma evita estourar vagas com dois acessos simultâneos</li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">sp_fechar_semestre (cursor)</div>
+<pre><span class="k">DECLARE</span> turmas <span class="k">CURSOR FOR</span>
+  <span class="k">SELECT</span> id_turma <span class="k">FROM</span> turma
+  <span class="k">WHERE</span> semestre = p_semestre
+    <span class="k">AND</span> encerrada = <span class="k">FALSE FOR UPDATE</span>;
+<span class="k">START TRANSACTION</span>;
+<span class="k">OPEN</span> turmas;
+leitura: <span class="k">LOOP</span>
+  <span class="k">FETCH</span> turmas <span class="k">INTO</span> v_turma;
+  <span class="k">IF</span> v_fim <span class="k">THEN LEAVE</span> leitura; <span class="k">END IF</span>;
+  <span class="c">-- pendências cancelam tudo</span>
+  <span class="k">UPDATE</span> turma <span class="k">SET</span> encerrada = <span class="k">TRUE</span>
+   <span class="k">WHERE</span> id_turma = v_turma;
+<span class="k">END LOOP</span>;
+<span class="k">COMMIT</span>;</pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> no fechamento é "tudo ou nada": se uma turma tiver nota pendente, nenhuma é encerrada.</div>
+</section>
+
+<!-- 9. SEGURANÇA NO BANCO -->
+<section class="slide">
+  <div class="pg">09</div>
+  <div class="tag">Segurança no banco</div>
+  <h1>Menor privilégio e <span>sessão validada no MySQL</span></h1>
+  <div class="cols">
+    <div>
+      <div class="file">database/05_permissoes.sql</div>
+<pre><span class="k">CREATE ROLE IF NOT EXISTS</span> <span class="s">'sga_fbi_aplicacao'</span>;
+
+<span class="k">GRANT EXECUTE ON PROCEDURE</span>
+  sga_fbi.sp_matricular_aluno
+  <span class="k">TO</span> <span class="s">'sga_fbi_aplicacao'</span>;
+
+<span class="k">GRANT SELECT ON</span> sga_fbi.vw_boletim
+  <span class="k">TO</span> <span class="s">'sga_fbi_aplicacao'</span>;
+
+<span class="c">-- a conta da aplicação nunca recebe
+-- INSERT/UPDATE/DELETE direto nas tabelas</span></pre>
+    </div>
+    <div>
+      <ul>
+        <li>O usuário <code>sga_rust_app</code> só tem <b>EXECUTE</b> nas procedures e <b>SELECT</b> nas views</li>
+        <li>No login, o banco gera um token aleatório (<code>RANDOM_BYTES(32)</code>) e guarda apenas o <b>hash SHA-256</b> em <code>sessao_usuario</code></li>
+        <li><code>sp_exigir_perfil</code> confere a sessão e bloqueia ações exclusivas do Coordenador</li>
+        <li>Senhas armazenadas apenas como hash <b>Argon2id</b> (<code>CHECK senha_hash LIKE '$argon2id$%'</code>)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> mesmo que alguém descubra a senha da aplicação, ela não consegue apagar tabelas nem burlar as regras.</div>
+</section>
+
+<!-- 10. RUST AXUM -->
+<section class="slide">
+  <div class="pg">10</div>
+  <div class="tag">Backend em Rust · src/main.rs</div>
+  <h1>Servidor HTTP com <span>Axum</span> e rotas REST</h1>
+  <div class="cols wide">
+    <div>
+      <ul>
+        <li><code>#[tokio::main]</code> cria o runtime assíncrono</li>
+        <li>Lê a <code>DATABASE_URL</code> do arquivo <code>.env.local</code></li>
+        <li>Abre o pool de conexões antes de aceitar requisições</li>
+        <li>Os arquivos da interface são embutidos no executável com <code>include_str!</code></li>
+        <li>Servidor escuta só em <code>127.0.0.1:3030</code></li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">src/main.rs</div>
+<pre><span class="k">let</span> repo = <span class="f">Repository::connect</span>(&amp;url).<span class="k">await</span>?;
+<span class="k">let</span> state = <span class="f">Arc::new</span>(App { repo, attempts });
+
+<span class="k">let</span> app = <span class="f">Router::new</span>()
+  .<span class="f">route</span>(<span class="s">"/api/login"</span>, <span class="f">post</span>(login))
+  .<span class="f">route</span>(<span class="s">"/api/logout"</span>, <span class="f">post</span>(logout))
+  .<span class="f">route</span>(<span class="s">"/api/data"</span>, <span class="f">get</span>(data))
+  .<span class="f">route</span>(<span class="s">"/api/records/{kind}"</span>, <span class="f">post</span>(create))
+  .<span class="f">route</span>(<span class="s">"/api/records/{kind}/{id}"</span>,
+         <span class="f">put</span>(update).<span class="f">delete</span>(delete))
+  .<span class="f">route</span>(<span class="s">"/api/grades/{id}"</span>, <span class="f">post</span>(grades))
+  .<span class="f">route</span>(<span class="s">"/api/close"</span>, <span class="f">post</span>(close))
+  .<span class="f">with_state</span>(state);</pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> <code>{kind}</code> é a entidade (alunos, cursos, turmas...) — uma única rota atende todos os cadastros.</div>
+</section>
+
+<!-- 11. LOGIN ARGON2 -->
+<section class="slide">
+  <div class="pg">11</div>
+  <div class="tag">Backend em Rust · Autenticação</div>
+  <h1>Login com <span>Argon2id</span> sem travar o servidor</h1>
+  <div class="cols wide">
+    <div>
+      <ul>
+        <li><b>1.</b> Busca o hash com <code>CALL sp_CredencialLogin(?)</code></li>
+        <li><b>2.</b> Devolve a conexão ao pool antes de verificar a senha</li>
+        <li><b>3.</b> Verifica o Argon2id em <code>spawn_blocking</code>, fora das threads assíncronas</li>
+        <li><b>4.</b> Grava a sessão com <code>CALL sp_LoginUsuario(?,?)</code></li>
+        <li><b>5.</b> Responde com cookie <code>HttpOnly; SameSite=Strict</code></li>
+        <li>Limite de tentativas por login contra força bruta</li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">src/main.rs · fn login</div>
+<pre><span class="k">let</span> (exists, hash) = {
+  <span class="k">let mut</span> conn = state.repo.<span class="f">acquire</span>().<span class="k">await</span>?;
+  <span class="k">let</span> cred = sqlx::<span class="f">query</span>(<span class="s">"CALL sp_CredencialLogin(?)"</span>)
+    .<span class="f">bind</span>(&amp;login)
+    .<span class="f">fetch_optional</span>(&amp;<span class="k">mut</span> *conn)
+    .<span class="k">await</span>.<span class="f">map_err</span>(db_error)?;
+  <span class="c">// ...</span>
+}; <span class="c">// conexão liberada aqui</span>
+
+<span class="k">let</span> valid = tokio::task::<span class="f">spawn_blocking</span>(<span class="k">move</span> || {
+  <span class="f">PasswordHash::new</span>(&amp;hash).<span class="f">is_ok_and</span>(|parsed| {
+    <span class="f">Argon2::default</span>()
+      .<span class="f">verify_password</span>(password.<span class="f">as_bytes</span>(), &amp;parsed)
+      .<span class="f">is_ok</span>()
+  })
+}).<span class="k">await</span>;</pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> o Argon2 é propositalmente lento; rodar em thread separada evita que um login segure as outras requisições.</div>
+</section>
+
+<!-- 12. CONEXÃO RUST-MYSQL -->
+<section class="slide">
+  <div class="pg">12</div>
+  <div class="tag">Conexão Rust ↔ MySQL · src/mysql_repo.rs</div>
+  <h1>Pool TLS e <span>consultas parametrizadas</span></h1>
+  <div class="cols">
+    <div>
+      <div class="file">Repository::connect</div>
+<pre><span class="k">let</span> opts = <span class="f">MySqlConnectOptions::from_str</span>(url)?
+  .<span class="f">ssl_mode</span>(MySqlSslMode::Required);
+
+<span class="k">let</span> pool = <span class="f">MySqlPoolOptions::new</span>()
+  .<span class="f">max_connections</span>(<span class="n">8</span>)
+  .<span class="f">acquire_timeout</span>(<span class="f">Duration::from_secs</span>(<span class="n">8</span>))
+  .<span class="f">connect_with</span>(opts)
+  .<span class="k">await</span>?;</pre>
+      <ul style="margin-top:14px">
+        <li>Conexão criptografada obrigatória</li>
+        <li>Até 8 conexões reaproveitadas</li>
+        <li>Só aceita MySQL local (127.0.0.1)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">Repository::upsert</div>
+<pre><span class="s">"alunos"</span> =&gt; sqlx::<span class="f">query</span>(
+    <span class="s">"CALL sp_salvar_aluno(?,?,?,?,?,?,?,?,?)"</span>)
+  .<span class="f">bind</span>(key)
+  .<span class="f">bind</span>(<span class="f">text</span>(&amp;v, <span class="s">"ra"</span>))
+  .<span class="f">bind</span>(<span class="f">text</span>(&amp;v, <span class="s">"nome"</span>))
+  .<span class="f">bind</span>(<span class="f">text</span>(&amp;v, <span class="s">"cpf"</span>))
+  .<span class="f">bind</span>(<span class="f">text</span>(&amp;v, <span class="s">"email"</span>))
+  .<span class="f">bind</span>(<span class="f">text</span>(&amp;v, <span class="s">"nascimento"</span>))
+  .<span class="f">bind</span>(<span class="f">id</span>(&amp;v, <span class="s">"curso_id"</span>))
+  .<span class="f">bind</span>(<span class="f">text</span>(&amp;v, <span class="s">"status"</span>))
+  .<span class="f">bind</span>(actor)
+  .<span class="f">fetch_one</span>(&amp;<span class="k">mut</span> **conn)
+  .<span class="k">await</span></pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> cada <code>?</code> recebe um <code>.bind()</code> — nenhum valor é concatenado no SQL, o que elimina SQL Injection.</div>
+</section>
+
+<!-- 13. DB_ERROR -->
+<section class="slide">
+  <div class="pg">13</div>
+  <div class="tag">Conexão Rust ↔ MySQL · Tratamento de erros</div>
+  <h1>Traduzindo erros do MySQL <span>para o usuário</span></h1>
+  <div class="cols wide">
+    <div>
+      <table class="t">
+        <tr><th>Código</th><th>Significado</th></tr>
+        <tr><td><code>1644</code></td><td>Regra de negócio (<code>SIGNAL '45000'</code>) — mensagem repassada</td></tr>
+        <tr><td><code>1062</code></td><td>Duplicidade em <code>UNIQUE</code> (CPF, RA, e-mail)</td></tr>
+        <tr><td><code>1451</code></td><td>Registro com vínculos (chave estrangeira)</td></tr>
+        <tr><td><code>3819</code></td><td>Violação de <code>CHECK</code> (nota fora de 0–10)</td></tr>
+        <tr><td><code>1213</code>/<code>1205</code></td><td>Deadlock / espera de lock</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="file">src/mysql_repo.rs · fn db_error</div>
+<pre><span class="k">pub fn</span> <span class="f">db_error</span>(e: sqlx::Error) -&gt; ApiError {
+  <span class="k">if let</span> <span class="f">Some</span>(db) = e.<span class="f">as_database_error</span>() {
+    <span class="k">let</span> number = db
+      .<span class="f">try_downcast_ref</span>::&lt;MySqlDatabaseError&gt;()
+      .<span class="f">map</span>(|err| err.<span class="f">number</span>())
+      .<span class="f">unwrap_or</span>(<span class="n">0</span>);
+    <span class="k">let</span> message = <span class="k">match</span> number {
+      <span class="n">1644</span> =&gt; db.<span class="f">message</span>().<span class="f">to_owned</span>(),
+      <span class="n">1062</span> =&gt; <span class="s">"Já existe um registro com este CPF..."</span>,
+      <span class="n">1451</span> =&gt; <span class="s">"Este registro está vinculado..."</span>,
+      <span class="c">// ...</span>
+    };
+    <span class="k">return</span> <span class="f">ApiError</span>(status, message);
+  }
+  <span class="f">ApiError</span>(SERVICE_UNAVAILABLE, <span class="s">"..."</span>)
+}</pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> a mensagem escrita no <code>SIGNAL</code> da trigger é a mesma que aparece no aviso da tela.</div>
+</section>
+
+<!-- 14. DOMAIN -->
+<section class="slide">
+  <div class="pg">14</div>
+  <div class="tag">Backend em Rust · src/domain.rs</div>
+  <h1>Regras acadêmicas <span>espelhadas no Rust</span></h1>
+  <div class="cols wide">
+    <div>
+      <ul>
+        <li><code>result_grade</code> repete a regra do banco para mostrar a prévia da situação antes de salvar</li>
+        <li>Uso de <code>Option&lt;f64&gt;</code>: nota não lançada é <code>None</code>, equivalente ao <code>NULL</code> do SQL</li>
+        <li><code>match</code> com guardas deixa cada faixa de nota explícita</li>
+        <li><code>fn reaches</code> faz busca em profundidade para detectar ciclos de pré-requisito</li>
+        <li>5 testes unitários (<code>cargo test</code>) cobrem notas, matrícula e integridade</li>
+      </ul>
+    </div>
+    <div>
+      <div class="file">src/domain.rs · fn result_grade</div>
+<pre><span class="k">let</span> partial = n1.<span class="f">zip</span>(n2).<span class="f">map</span>(|(a, b)| (a + b) / <span class="n">2.0</span>);
+
+<span class="k">let</span> status = <span class="k">if</span> frequency &lt; <span class="n">75.0</span> {
+  <span class="s">"Reprovado por Falta"</span>
+} <span class="k">else</span> {
+  <span class="k">match</span> partial {
+    <span class="f">None</span> =&gt; <span class="s">"Cursando"</span>,
+    <span class="f">Some</span>(p) <span class="k">if</span> p &gt;= <span class="n">7.0</span> =&gt; <span class="s">"Aprovado"</span>,
+    <span class="f">Some</span>(p) <span class="k">if</span> p &lt; <span class="n">4.0</span> =&gt; <span class="s">"Reprovado por Nota"</span>,
+    <span class="f">Some</span>(_) =&gt; <span class="k">match</span> average.<span class="f">zip</span>(exam) {
+      <span class="f">None</span> =&gt; <span class="s">"Em Exame"</span>,
+      <span class="f">Some</span>((a, _)) <span class="k">if</span> a &gt;= <span class="n">5.0</span> =&gt; <span class="s">"Aprovado"</span>,
+      _ =&gt; <span class="s">"Reprovado por Nota"</span>,
+    },
+  }
+};</pre>
+    </div>
+  </div>
+  <div class="note"><b>Fala:</b> compare com a <code>fn_situacao_valores</code> do slide 5 — é a mesma regra, em SQL e em Rust.</div>
+</section>
+
+<!-- 15. DEMO E CONCLUSÃO -->
+<section class="slide">
+  <div class="pg">15</div>
+  <div class="tag">Demonstração e conclusão</div>
+  <h1>Sistema Web <span>↔</span> MySQL Workbench</h1>
+  <div class="cols">
+    <div>
+      <h3>Roteiro da demonstração</h3>
+      <ul>
+        <li><b>1.</b> Cadastrar um aluno no SGA e anotar o RA. As consultas prontas ficam em <code>DEMO_CRUD_AO_VIVO.sql</code>.</li>
+        <li><b>2.</b> No Workbench: <code>SELECT * FROM sga_fbi.aluno ORDER BY id_aluno DESC;</code></li>
+        <li><b>3.</b> Lançar notas e consultar <code>matricula</code> e <code>log_nota</code></li>
+        <li><b>4.</b> Tentar matricular em turma lotada e mostrar o erro da trigger</li>
+        <li><b>5.</b> Editar o aluno no SGA e executar novamente a consulta no Workbench</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Conclusão</h3>
+      <ul>
+        <li>As regras de negócio ficam centralizadas no MySQL: procedures, triggers e functions</li>
+        <li>O Rust conecta de forma segura (TLS, pool, parâmetros) e trata os erros do banco</li>
+        <li>O SGA grava ao salvar. O raio no Workbench atualiza o resultado da consulta. O diagrama EER mostra a estrutura.</li>
+      </ul>
+      <div class="card" style="margin-top:22px">
+        <p>André Cavalcante Moreira · William de Almeida<br>Nícolas Silva Botelho Pereira · Hitalo Guylherme Barbosa Pereira</p>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>Obrigado!</b> Perguntas?</div>
+</section>
+
+</body>
+</html>

@@ -1,4 +1,5 @@
-//! Academic rules for a fresh snapshot from MySQL. No file persistence.
+//! Regras de negócio acadêmicas, validações de domínio e cálculo de médias e frequência.
+
 use argon2::{
     password_hash::{PasswordHasher, SaltString},
     Argon2,
@@ -7,7 +8,9 @@ use chrono::{NaiveDate, Utc};
 use rand_core::OsRng;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
+
 pub type Result<T> = std::result::Result<T, String>;
+
 pub const KINDS: [&str; 8] = [
     "alunos",
     "cursos",
@@ -18,28 +21,38 @@ pub const KINDS: [&str; 8] = [
     "usuarios",
     "financeiro",
 ];
+
 #[derive(Clone)]
 pub struct AcademicSnapshot {
     pub tables: BTreeMap<String, Vec<Value>>,
     pub logs: Vec<Value>,
     pub next_id: u64,
 }
+
+// --- Utilitários e Hash de Senha (Argon2id) ---
+
 pub fn text<'a>(v: &'a Value, k: &str) -> &'a str {
     v[k].as_str().unwrap_or("")
 }
+
 pub fn id(v: &Value, k: &str) -> u64 {
     v[k].as_u64().unwrap_or(0)
 }
+
 pub fn password_hash(password: &str) -> Result<String> {
     Argon2::default()
         .hash_password(password.as_bytes(), &SaltString::generate(&mut OsRng))
         .map(|h| h.to_string())
         .map_err(|_| "Não foi possível proteger a senha.".into())
 }
+
 pub fn safe_user(mut v: Value) -> Value {
     v.as_object_mut().unwrap().remove("senha_hash");
     v
 }
+
+// --- Cálculo de Média, Exame e Frequência (RN01 a RN04) ---
+
 pub fn result_grade(
     n1: Option<f64>,
     n2: Option<f64>,
@@ -280,15 +293,23 @@ impl AcademicSnapshot {
             "disciplinas" => {
                 Self::required(v, &["nome"])?;
                 Self::positive(v, "periodo")?;
+                if id(v, "periodo") > 100 {
+                    return Err("periodo: informe um inteiro entre 1 e 100.".into());
+                }
                 Self::positive(v, "carga_horaria")?;
                 self.find("cursos", id(v, "curso_id"))?;
                 if old.is_some_and(|o| o["curso_id"] != v["curso_id"])
-                    && self
+                    && (self
                         .rows("turmas")
                         .iter()
                         .any(|t| id(t, "disciplina_id") == id(v, "id"))
+                        || self.rows("disciplinas").iter().any(|d| {
+                            d["requisitos"]
+                                .as_array()
+                                .is_some_and(|r| r.contains(&json!(id(v, "id"))))
+                        }))
                 {
-                    return Err("Disciplina com turmas não pode trocar de curso.".into());
+                    return Err("Disciplina vinculada não pode trocar de curso.".into());
                 }
                 let req = v["requisitos"]
                     .as_array()
@@ -346,10 +367,11 @@ impl AcademicSnapshot {
                     }
                     if !enrolled.is_empty()
                         && (o["disciplina_id"] != v["disciplina_id"]
-                            || o["semestre"] != v["semestre"])
+                            || o["semestre"] != v["semestre"]
+                            || o["total_aulas"] != v["total_aulas"])
                     {
                         return Err(
-                            "Turma com matrículas não pode trocar de disciplina ou semestre."
+                            "Turma com matrículas não pode trocar de disciplina, semestre ou total de aulas."
                                 .into(),
                         );
                     }
@@ -535,6 +557,11 @@ impl AcademicSnapshot {
         if kind == "turmas" && value["encerrada"] == true {
             return Err("Turma encerrada não pode ser excluída.".into());
         }
+        if kind == "financeiro" && text(&value, "status") != "Pendente" {
+            return Err(
+                "Cobranças pagas ou canceladas são preservadas. Utilize o status Cancelado.".into(),
+            );
+        }
         if kind == "matriculas" {
             if self.find("turmas", id(&value, "turma_id"))?["encerrada"] == true {
                 return Err("Não é possível cancelar matrícula de turma encerrada.".into());
@@ -547,13 +574,22 @@ impl AcademicSnapshot {
                 );
             }
         }
+        if kind == "usuarios" && self.logs.iter().any(|l| id(l, "usuario_id") == key) {
+            return Err(
+                "Este usuário possui registros de auditoria e deve ser preservado.".into(),
+            );
+        }
         let links: &[(&str, &str)] = match kind {
-            "alunos" => &[("matriculas", "aluno_id")],
-            "cursos" => &[("alunos", "curso_id"), ("disciplinas", "curso_id")],
+            "alunos" => &[("matriculas", "aluno_id"), ("financeiro", "aluno_id")],
+            "cursos" => &[
+                ("alunos", "curso_id"),
+                ("disciplinas", "curso_id"),
+                ("financeiro", "curso_id"),
+            ],
             "disciplinas" => &[("turmas", "disciplina_id")],
             "professores" => &[("turmas", "professor_id")],
             "turmas" => &[("matriculas", "turma_id")],
-            "usuarios" => &[("matriculas", "usuario_id")],
+            "usuarios" => &[("matriculas", "usuario_id"), ("financeiro", "usuario_id")],
             _ => &[],
         };
         for (table, field) in links {

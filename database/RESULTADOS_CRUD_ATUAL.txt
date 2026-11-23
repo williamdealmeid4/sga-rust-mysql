@@ -1,0 +1,10 @@
+PASS: CRUD de alunos, cursos, disciplinas, professores, turmas, usuários e cobranças via API Rust e MySQL isolado.
+PASS: matrícula sem notas: criação, leitura e exclusão; troca de aluno/turma bloqueada pela regra vigente. Notas e frequência alteradas pelos testes de integração.
+PASS: criação, leitura, alteração e exclusão de cobrança pendente.
+FUNCTION	7
+
+PROCEDURE	26
+
+TRIGGERS	10
+
+VIEWS	10
