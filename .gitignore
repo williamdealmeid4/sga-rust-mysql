@@ -10,3 +10,5 @@
 /docs/requisitos.pdf
 /dist/
 /graphify-out/.*
+/apresentacao/.build/
+/PROMPT_SLIDES_15_PAGINAS.txt

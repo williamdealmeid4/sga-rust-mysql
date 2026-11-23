@@ -1,7 +1,8 @@
 -- Extensão para tornar o faturamento operacional: valores lançados pelo Coordenador.
--- Não remove nem substitui dados acadêmicos.
+-- Não remove nem substitui dados acadêmicos. Pode ser executado com segurança no Workbench.
 USE sga_fbi;
-CREATE TABLE cobranca (
+
+CREATE TABLE IF NOT EXISTS cobranca (
  id_cobranca INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
  id_aluno INT UNSIGNED NOT NULL,id_curso INT UNSIGNED NOT NULL,
  descricao VARCHAR(150) NOT NULL,valor DECIMAL(12,2) NOT NULL,vencimento DATE NOT NULL,
@@ -15,12 +16,21 @@ CREATE TABLE cobranca (
  CONSTRAINT ck_cobranca_status CHECK(status IN('Pendente','Pago','Cancelado')),
  CONSTRAINT ck_cobranca_pagamento CHECK((status='Pago' AND data_pagamento IS NOT NULL) OR(status<>'Pago' AND data_pagamento IS NULL))
 ) ENGINE=InnoDB;
-CREATE TABLE log_financeiro (
+
+CREATE TABLE IF NOT EXISTS log_financeiro (
  id_log BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,id_cobranca INT UNSIGNED NOT NULL,
  acao VARCHAR(15) NOT NULL,anterior JSON NULL,novo JSON NULL,
  id_usuario INT UNSIGNED NOT NULL,data_hora DATETIME(6) NOT NULL DEFAULT(UTC_TIMESTAMP(6)),
  CONSTRAINT fk_log_fin_usuario FOREIGN KEY(id_usuario) REFERENCES usuario(id_usuario)
 ) ENGINE=InnoDB;
+
+DROP TRIGGER IF EXISTS trg_audita_cobranca_insert;
+DROP TRIGGER IF EXISTS trg_audita_cobranca_update;
+DROP PROCEDURE IF EXISTS sp_salvar_cobranca;
+DROP PROCEDURE IF EXISTS sp_excluir_cobranca;
+DROP PROCEDURE IF EXISTS sp_faturamento_curso;
+DROP PROCEDURE IF EXISTS sp_dados_sistema;
+
 DELIMITER $$
 CREATE TRIGGER trg_audita_cobranca_insert AFTER INSERT ON cobranca FOR EACH ROW
 BEGIN
@@ -62,7 +72,6 @@ BEGIN
  INSERT INTO log_financeiro(id_cobranca,acao,anterior,id_usuario)VALUES(p_id,'Excluir',v_old,p_usuario);
  DELETE FROM cobranca WHERE id_cobranca=p_id;COMMIT;
 END$$
-DROP PROCEDURE sp_faturamento_curso$$
 CREATE PROCEDURE sp_faturamento_curso(IN p_id_usuario INT UNSIGNED) SQL SECURITY DEFINER
 BEGIN
  CALL sp_exigir_perfil(p_id_usuario,TRUE);
@@ -73,7 +82,6 @@ BEGIN
  COALESCE(SUM(CASE WHEN b.status='Cancelado' THEN b.valor ELSE 0 END),0) AS cancelado
  FROM curso c LEFT JOIN cobranca b ON b.id_curso=c.id_curso GROUP BY c.id_curso,c.nome;
 END$$
-DROP PROCEDURE sp_dados_sistema$$
 CREATE PROCEDURE sp_dados_sistema(IN p_id_usuario INT UNSIGNED) SQL SECURITY DEFINER
 BEGIN
  DECLARE v_dados JSON;
@@ -86,6 +94,7 @@ BEGIN
  SELECT v_dados AS dados;
 END$$
 DELIMITER ;
+
 GRANT EXECUTE ON PROCEDURE sga_fbi.sp_salvar_cobranca TO 'sga_fbi_aplicacao';
 GRANT EXECUTE ON PROCEDURE sga_fbi.sp_excluir_cobranca TO 'sga_fbi_aplicacao';
 GRANT EXECUTE ON PROCEDURE sga_fbi.sp_faturamento_curso TO 'sga_fbi_aplicacao';

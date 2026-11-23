@@ -1,4 +1,5 @@
-//! MySQL is the authoritative persistence layer. Network operations use CALL only.
+//! Camada de persistência MySQL: comunicação parametrizada via Stored Procedures.
+
 use crate::domain::{self, id, text, AcademicSnapshot};
 use crate::{ApiError, ApiResult};
 use axum::{http::StatusCode, Json};
@@ -9,16 +10,20 @@ use sqlx::{
     MySql, MySqlPool, Row,
 };
 use std::{collections::BTreeMap, str::FromStr, time::Duration};
+
+// --- Repositório MySQL e Mapeamento de Erros SQL ---
+
 #[derive(Clone)]
 pub struct Repository {
     pub pool: MySqlPool,
 }
+
 pub fn db_error(e: sqlx::Error) -> ApiError {
     eprintln!("MySQL: {e}");
     if let Some(db) = e.as_database_error() {
         let number = db
             .try_downcast_ref::<sqlx::mysql::MySqlDatabaseError>()
-            .map(|e| e.number())
+            .map(|err| err.number())
             .unwrap_or(0);
         let message = match number {
             1644 => db.message().to_owned(),
@@ -28,6 +33,10 @@ pub fn db_error(e: sqlx::Error) -> ApiError {
                 "O registro relacionado não existe mais. Atualize a tela e tente novamente.".into()
             }
             3819 => "Valor inválido: confira notas de 0 a 10, campos e limites do cadastro.".into(),
+            1305 => {
+                "Procedimento não encontrado no banco. Execute database/07_financeiro.sql no MySQL Workbench.".into()
+            }
+            1406 => "Um dos campos ultrapassou o tamanho máximo permitido na tabela.".into(),
             1213 | 1205 => "Outra operação está alterando estes dados. Tente novamente.".into(),
             _ => "O MySQL recusou a operação. Confira os campos e a configuração do banco.".into(),
         };
@@ -43,6 +52,7 @@ pub fn db_error(e: sqlx::Error) -> ApiError {
         "Não foi possível comunicar com o MySQL. Confira se o serviço está ligado.".into(),
     )
 }
+
 fn json_row(row: &MySqlRow) -> Result<Value, ApiError> {
     if let Ok(sqlx::types::Json(value)) = row.try_get::<sqlx::types::Json<Value>, _>(0) {
         return Ok(value);
@@ -55,11 +65,18 @@ fn json_row(row: &MySqlRow) -> Result<Value, ApiError> {
         )
     })
 }
+
 pub fn user_row(row: &MySqlRow) -> Result<Value, ApiError> {
-    Ok(
-        json!({"id":row.try_get::<u32,_>(0).map_err(db_error)?,"nome":row.try_get::<String,_>(1).map_err(db_error)?,"email":row.try_get::<String,_>(2).map_err(db_error)?,"perfil":row.try_get::<String,_>(3).map_err(db_error)?}),
-    )
+    Ok(json!({
+        "id": row.try_get::<u32, _>(0).map_err(db_error)?,
+        "nome": row.try_get::<String, _>(1).map_err(db_error)?,
+        "email": row.try_get::<String, _>(2).map_err(db_error)?,
+        "perfil": row.try_get::<String, _>(3).map_err(db_error)?,
+    }))
 }
+
+// --- Conexão TLS e Validação de Sessão ---
+
 impl Repository {
     pub async fn connect(url: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let opts = MySqlConnectOptions::from_str(url)?.ssl_mode(MySqlSslMode::Required);
@@ -75,9 +92,11 @@ impl Repository {
             .await?;
         Ok(Self { pool })
     }
+
     pub async fn acquire(&self) -> Result<PoolConnection<MySql>, ApiError> {
         self.pool.acquire().await.map_err(db_error)
     }
+
     pub async fn authenticate_connection(
         &self,
         token: &str,
@@ -107,6 +126,7 @@ impl Repository {
             })?;
         Ok((conn, user_row(&row)?))
     }
+
     pub async fn data(conn: &mut PoolConnection<MySql>, actor: u64) -> Result<Value, ApiError> {
         let row = sqlx::query("CALL sp_dados_sistema(?)")
             .bind(actor)
@@ -115,6 +135,7 @@ impl Repository {
             .map_err(db_error)?;
         json_row(&row)
     }
+
     fn snapshot(data: &Value) -> AcademicSnapshot {
         let tables: BTreeMap<String, Vec<Value>> = domain::KINDS
             .iter()
@@ -138,6 +159,9 @@ impl Repository {
             next_id,
         }
     }
+
+    // --- Persistência via Stored Procedures (CRUD) ---
+
     pub async fn upsert(
         conn: &mut PoolConnection<MySql>,
         user: &Value,
@@ -150,8 +174,10 @@ impl Repository {
         let data = Self::data(conn, actor).await?;
         let mut snapshot = Self::snapshot(&data);
         let temp_id = key.unwrap_or(snapshot.next_id);
+
         snapshot.upsert(kind, key, input.clone(), actor, coordinator)?;
         let v = snapshot.find(kind, temp_id)?.clone();
+
         let row = match kind {
             "alunos" => {
                 sqlx::query("CALL sp_salvar_aluno(?,?,?,?,?,?,?,?,?)")
@@ -270,24 +296,19 @@ impl Repository {
             }
         }
         .map_err(db_error)?;
-        let _field = match kind {
-            "alunos" => "id_aluno",
-            "cursos" => "id_curso",
-            "disciplinas" => "id_disciplina",
-            "professores" => "id_professor",
-            "turmas" => "id_turma",
-            "usuarios" => "id_usuario",
-            _ => "id_matricula",
-        };
+
         let actual = row.try_get::<u32, _>(0).map_err(db_error)? as u64;
         let refreshed = Self::data(conn, actor).await?;
         let result = refreshed[kind]
             .as_array()
             .and_then(|list| list.iter().find(|r| id(r, "id") == actual))
             .cloned()
-            .unwrap_or_else(|| json!({"id":actual}));
+            .unwrap_or_else(|| json!({ "id": actual }));
         Ok(Json(result))
     }
+
+    // --- Exclusão, Notas e Encerramento de Semestre ---
+
     pub async fn delete(
         conn: &mut PoolConnection<MySql>,
         user: &Value,
@@ -297,6 +318,7 @@ impl Repository {
         let actor = id(user, "id");
         let data = Self::data(conn, actor).await?;
         Self::snapshot(&data).delete(kind, key, actor, text(user, "perfil") == "Coordenador")?;
+
         if kind == "financeiro" {
             sqlx::query("CALL sp_excluir_cobranca(?,?)")
                 .bind(key)
@@ -304,8 +326,9 @@ impl Repository {
                 .execute(&mut **conn)
                 .await
                 .map_err(db_error)?;
-            return Ok(Json(json!({"ok":true})));
+            return Ok(Json(json!({ "ok": true })));
         }
+
         let table = match kind {
             "alunos" => "aluno",
             "cursos" => "curso",
@@ -321,6 +344,7 @@ impl Repository {
                 ))
             }
         };
+
         sqlx::query("CALL sp_excluir_cadastro(?,?,?)")
             .bind(table)
             .bind(key)
@@ -328,8 +352,9 @@ impl Repository {
             .execute(&mut **conn)
             .await
             .map_err(db_error)?;
-        Ok(Json(json!({"ok":true})))
+        Ok(Json(json!({ "ok": true })))
     }
+
     pub async fn grades(
         conn: &mut PoolConnection<MySql>,
         user: &Value,
@@ -340,6 +365,7 @@ impl Repository {
         let data = Self::data(conn, actor).await?;
         let mut snapshot = Self::snapshot(&data);
         let v = snapshot.grades(key, input, actor, text(user, "perfil") == "Coordenador")?;
+
         sqlx::query("CALL sp_atualizar_avaliacao(?,?,?,?,?,?)")
             .bind(key)
             .bind(v["n1"].as_f64())
@@ -350,6 +376,7 @@ impl Repository {
             .execute(&mut **conn)
             .await
             .map_err(db_error)?;
+
         let refreshed = Self::data(conn, actor).await?;
         Ok(Json(
             refreshed["matriculas"]
@@ -359,6 +386,7 @@ impl Repository {
                 .ok_or_else(|| ApiError(StatusCode::NOT_FOUND, "Matrícula inexistente.".into()))?,
         ))
     }
+
     pub async fn close(
         conn: &mut PoolConnection<MySql>,
         user: &Value,
@@ -367,14 +395,16 @@ impl Repository {
         let actor = id(user, "id");
         let data = Self::data(conn, actor).await?;
         Self::snapshot(&data).close(semester, text(user, "perfil") == "Coordenador")?;
+
         let row = sqlx::query("CALL sp_fechar_semestre(?,?)")
             .bind(semester)
             .bind(actor)
             .fetch_one(&mut **conn)
             .await
             .map_err(db_error)?;
-        Ok(Json(
-            json!({"turmas":row.try_get::<i32,_>(0).map_err(db_error)?}),
-        ))
+
+        Ok(Json(json!({
+            "turmas": row.try_get::<i32, _>(0).map_err(db_error)?
+        })))
     }
 }
