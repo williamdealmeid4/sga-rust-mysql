@@ -568,7 +568,7 @@ impl AcademicSnapshot {
             );
         }
         let links: &[(&str, &str)] = match kind {
-            "alunos" => &[("matriculas", "aluno_id"), ("financeiro", "aluno_id")],
+            "alunos" => &[("financeiro", "aluno_id")],
             "cursos" => &[
                 ("alunos", "curso_id"),
                 ("disciplinas", "curso_id"),
@@ -595,6 +595,22 @@ impl AcademicSnapshot {
             })
         {
             return Err("Disciplina usada como pré-requisito não pode ser excluída.".into());
+        }
+        if kind == "alunos" {
+            let matriculas: std::collections::HashSet<_> = self
+                .rows("matriculas")
+                .iter()
+                .filter(|m| id(m, "aluno_id") == key)
+                .map(|m| id(m, "id"))
+                .collect();
+            self.tables
+                .get_mut("matriculas")
+                .unwrap()
+                .retain(|m| !matriculas.contains(&id(m, "id")));
+            self.logs
+                .retain(|l| !matriculas.contains(&id(l, "matricula_id")));
+        } else if kind == "matriculas" {
+            self.logs.retain(|l| id(l, "matricula_id") != key);
         }
         self.tables
             .get_mut(kind)
@@ -923,7 +939,6 @@ mod tests {
     #[test]
     fn referential_integrity_and_cycles() {
         let mut d = AcademicSnapshot::seed().unwrap();
-        assert!(d.delete("alunos", 1, 1, true).is_err());
         assert!(d.delete("usuarios", 1, 1, true).is_err());
         assert!(d.delete("disciplinas", 2, 1, true).is_err());
         assert!(d
@@ -934,5 +949,9 @@ mod tests {
             .upsert("turmas", Some(1), json!({"vagas":1}), 1, true)
             .is_err());
         assert_eq!(d.rows("matriculas").len(), 35);
+        assert!(d.rows("matriculas").iter().any(|m| id(m, "aluno_id") == 1));
+        d.delete("alunos", 1, 1, true).unwrap();
+        assert!(d.find("alunos", 1).is_err());
+        assert!(d.rows("matriculas").iter().all(|m| id(m, "aluno_id") != 1));
     }
 }
